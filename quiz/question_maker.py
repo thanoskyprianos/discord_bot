@@ -1,10 +1,9 @@
 from dataclasses import dataclass, field
 from random import shuffle
-from secrets import choice
 
 from discord import Embed
 
-from quizApi import QuizData
+from quiz.quiz_api import QuizData
 
 
 def json_fix(string: str) -> str:
@@ -91,3 +90,10 @@ class Quiz:
     def get_correct_answer(self):
         '''Returns the correct answer'''
         return self._correct_answer[0]
+
+    def difficulty_modifier(self):
+        if self._difficulty == 'Easy':
+            return 1
+        if self._difficulty == 'Medium':
+            return 2
+        return 3

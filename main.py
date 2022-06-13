@@ -1,8 +1,9 @@
 from discord import Embed
 from discord.ext import commands
 
-from queston_maker import Quiz
-from quizApi import QuizData
+from quiz.question_maker import Quiz
+from quiz.quiz_api import QuizData
+from user_database.users import Database
 
 bot = commands.Bot(command_prefix='!')
 
@@ -63,14 +64,28 @@ async def quiz(ctx):
 
         reaction, _ = await bot.wait_for('reaction_add', check=check)
 
+        db = Database()
+
         if question.get_choices()[str(
                 reaction.emoji)] == question.get_correct_answer():
             await msg.edit(embed=question.correct_embed())
+            db.write_user(ctx.author.id, question.difficulty_modifier())
             return
         await msg.edit(embed=question.incorrect_embed())
+        db.write_user(ctx.author.id)
         return
 
     await ctx.send('API not currently working.')
+
+
+@bot.command()
+async def points(ctx):
+    db = Database()
+    if db.check_if_exist(ctx.author.id):
+        await ctx.send(
+            f'{ctx.author.name} has {db.get_points(ctx.author.id)} point(s).')
+        return
+    await ctx.send(f'{ctx.author.name} has not played a game yet.')
 
 
 bot.run(

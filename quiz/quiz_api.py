@@ -13,7 +13,7 @@ class QuizData:
         question = self.response.json()['results'][0]['question']
         return question.replace('&quot;', '"').replace('&#039;', "'")
 
-    def get_correct_answer(self):
+    def get_correct_answer(self) -> str:
         return self.response.json()['results'][0]['correct_answer']
 
     def get_incorrect_answers(self) -> list:
