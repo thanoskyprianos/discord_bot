@@ -50,23 +50,24 @@ async def quiz(ctx):
     if quiz.get_response() == 0:  #check if api works
 
         question = Quiz()
-        msg = await ctx.send(embed=question.question_template)
+        msg = await ctx.send(embed=question.template_creation())
 
-        for emoji in question.choices.keys():
+        for emoji in question.get_choices().keys():
             await msg.add_reaction(emoji)
 
         def check(reaction, user):
             return user.id == ctx.author.id\
                 and reaction.message == msg\
                 and reaction.message.channel.id == ctx.channel.id\
-                and str(reaction.emoji) in question.choices.keys()
+                and str(reaction.emoji) in question.get_choices().keys()
 
         reaction, _ = await bot.wait_for('reaction_add', check=check)
 
-        if question.choices[str(reaction.emoji)] == question.correct_answer[0]:
-            await msg.edit(embed=question.correct)
+        if question.get_choices()[str(
+                reaction.emoji)] == question.get_correct_answer():
+            await msg.edit(embed=question.correct_embed())
             return
-        await msg.edit(embed=question.incorrect)
+        await msg.edit(embed=question.incorrect_embed())
         return
 
     await ctx.send('API not currently working.')

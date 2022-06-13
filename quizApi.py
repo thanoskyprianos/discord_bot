@@ -4,8 +4,7 @@ import requests
 class QuizData:
 
     def __init__(self) -> None:
-        self.response = requests.get(
-            'https://opentdb.com/api.php?amount=1&type=boolean')
+        self.response = requests.get('https://opentdb.com/api.php?amount=1')
 
     def get_response(self) -> str:
         return self.response.json()['response_code']
