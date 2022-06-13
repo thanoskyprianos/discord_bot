@@ -16,20 +16,37 @@ class Quiz:
 
     def __post_init__(self):
         if self.quiz.get_response() == 0:
-            self.question = self.quiz.get_question()
-            self.category = self.quiz.get_category()
-            self.difficulty = self.quiz.get_difficulty()
-            self.correct_answer = [self.quiz.get_correct_answer()]
-            self.incorrect_answers = self.quiz.get_incorrect_answers()
+            self.question = self.quiz.get_question().replace('&quot;',
+                                                             '"').replace(
+                                                                 '&#039;', "'")
+            self.category = self.quiz.get_category().replace('&quot;',
+                                                             '"').replace(
+                                                                 '&#039;', "'")
+            self.difficulty = self.quiz.get_difficulty().capitalize()
+
+            self.correct_answer = [
+                self.quiz.get_correct_answer().replace('&quot;', '"').replace(
+                    '&#039;', "'")
+            ]
+            self.incorrect_answers = list(
+                map(lambda x: x.replace('&quot;', '"').replace('&#039;', "'"),
+                    self.quiz.get_incorrect_answers()))
 
             self.correct.title = 'Correct!'
             self.correct.description = 'Good job!'
 
             self.incorrect.title = 'Incorrect!'
             self.incorrect.description = 'Try again!'
+            self.incorrect.add_field(name='Correct Answer',
+                                     value=self.correct_answer[0])
 
             self.cor_inc = self.correct_answer + self.incorrect_answers
-            shuffle(self.cor_inc)
+
+            #only if multiple choice
+            if len(self.cor_inc) > 2:
+                shuffle(self.cor_inc)
+            else:
+                self.cor_inc.sort(reverse=True)
 
             true_false_emojis = ['✅', '❌']
             number_emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣']
