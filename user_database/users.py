@@ -13,9 +13,9 @@ class Database:
 
     def write_user(self, user, extra_points=0):
         if self.check_if_exist(user):
-            points = self.get_points(user)
-            self.cur.execute("UPDATE Users SET Points = ? WHERE UserID = ?",
-                             (points + extra_points, user))
+            self.cur.execute(
+                "UPDATE Users SET Points = Points + ? WHERE UserID = ?",
+                (extra_points, user))
             self.con.commit()
         else:
             self.cur.execute(

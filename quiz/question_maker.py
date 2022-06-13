@@ -8,7 +8,8 @@ from quiz.quiz_api import QuizData
 
 def json_fix(string: str) -> str:
     '''Replaces json special characters with normal characters'''
-    return string.replace('&quot;', '"').replace('&#039;', "'")
+    return string.replace('&quot;', '"').replace('&#039;',
+                                                 "'").replace('&amp;', '&')
 
 
 @dataclass
