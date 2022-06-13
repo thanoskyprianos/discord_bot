@@ -1,7 +1,7 @@
 import requests
 
 
-class QuizMaker:
+class QuizData:
 
     def __init__(self) -> None:
         self.response = requests.get(
@@ -14,8 +14,11 @@ class QuizMaker:
         question = self.response.json()['results'][0]['question']
         return question.replace('&quot;', '"').replace('&#039;', "'")
 
-    def get_answer(self) -> bool:
+    def get_correct_answer(self):
         return self.response.json()['results'][0]['correct_answer']
+
+    def get_incorrect_answer(self) -> list:
+        return self.response.json()['results'][0]['incorrect_answers']
 
     def get_difficulty(self) -> str:
         return self.response.json()['results'][0]['difficulty'].capitalize()

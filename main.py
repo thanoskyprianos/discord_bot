@@ -1,8 +1,8 @@
 from discord import Embed
 from discord.ext import commands
-from matplotlib.pyplot import title
 
-from quiz_maker import QuizMaker
+from queston_maker import TrueFalseQuiz
+from quizApi import QuizData
 
 bot = commands.Bot(command_prefix='!')
 
@@ -46,28 +46,27 @@ async def clear(ctx, number=''):
 @bot.command()
 async def quiz(ctx):
 
-    quiz = QuizMaker()
+    quiz = QuizData()
     if quiz.get_response() == 0:  #check if api works
 
-        correct = Embed(title='Correct!', description='Good job!')
-        inccorect = Embed(title='Incorrect!', desription='Try again!')
+        question = TrueFalseQuiz()
+        msg = await ctx.send(embed=question.question_template)
+        await msg.add_reaction(['✅', '❌'])
+        await msg.add_reaction('❌')
 
-        question = Embed(title='Question', description=quiz.get_question())
-        question.add_field(name='Difficutly', value=quiz.get_difficulty())
+        def check(reaction, user):
+            return user.id == ctx.author.id\
+                and reaction.message == msg\
+                and reaction.message.channel.id == ctx.channel.id\
+                and str(reaction.emoji) in ['✅', '❌']
 
-        sent = await ctx.send(embed=question)
+        reaction, _ = await bot.wait_for('reaction_add', check=check)
 
-        def check(message):
-            return message.author == ctx.author\
-                and message.channel == ctx.channel \
-                and message.reference is not None\
-                and message.reference.message_id == sent.id
-
-        reply = await bot.wait_for('message', check=check)
-        if reply.content.capitalize() == quiz.get_answer():
-            await sent.edit(embed=correct)
+        if str(reaction.emoji) == '✅' and question.correct_answer == 'True'\
+            or str(reaction.emoji) == '❌' and question.correct_answer == 'False':
+            await msg.edit(embed=question.correct)
             return
-        await sent.edit(embed=inccorect)
+        await msg.edit(embed=question.incorrect)
         return
 
     await ctx.send('API not currently working.')
