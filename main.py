@@ -85,22 +85,24 @@ async def send_quiz(ctx, question):
     if question.get_choices()[str(
             reaction.emoji)] == question.get_correct_answer():
         await msg.edit(embed=question.correct_embed())
+        db.add_win(ctx.author.id)
         db.write_user(ctx.author.id, question.difficulty_modifier())
         return
     await msg.edit(embed=question.incorrect_embed())
     db.write_user(ctx.author.id)
+    db.add_loss(ctx.author.id)
     return
 
 
 @bot.command()
-async def points(ctx, user: Optional[User]):
+async def stats(ctx, user: Optional[User]):
     if user:
         uid = user
     else:
         uid = ctx.author
     db = Database()
     if db.check_if_exist(uid.id):
-        await ctx.send(f'{uid.name} has {db.get_points(uid.id)} point(s).')
+        await ctx.send(embed=db.stats_embed(uid))
         return
     await ctx.send(f'{uid.name} has not played a game yet.')
 
