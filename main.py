@@ -1,7 +1,7 @@
 from discord import Embed
 from discord.ext import commands
 
-from queston_maker import TrueFalseQuiz
+from queston_maker import Quiz
 from quizApi import QuizData
 
 bot = commands.Bot(command_prefix='!')
@@ -49,21 +49,21 @@ async def quiz(ctx):
     quiz = QuizData()
     if quiz.get_response() == 0:  #check if api works
 
-        question = TrueFalseQuiz()
+        question = Quiz()
         msg = await ctx.send(embed=question.question_template)
-        await msg.add_reaction(['✅', '❌'])
-        await msg.add_reaction('❌')
+
+        for emoji in question.choices.keys():
+            await msg.add_reaction(emoji)
 
         def check(reaction, user):
             return user.id == ctx.author.id\
                 and reaction.message == msg\
                 and reaction.message.channel.id == ctx.channel.id\
-                and str(reaction.emoji) in ['✅', '❌']
+                and str(reaction.emoji) in question.choices.keys()
 
         reaction, _ = await bot.wait_for('reaction_add', check=check)
 
-        if str(reaction.emoji) == '✅' and question.correct_answer == 'True'\
-            or str(reaction.emoji) == '❌' and question.correct_answer == 'False':
+        if question.choices[str(reaction.emoji)] == question.correct_answer[0]:
             await msg.edit(embed=question.correct)
             return
         await msg.edit(embed=question.incorrect)
