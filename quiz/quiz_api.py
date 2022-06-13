@@ -1,10 +1,47 @@
+from dataclasses import dataclass, field
+from enum import Enum, auto
+
 import requests
 
 
+class Category(Enum):
+    '''Enum for the categories'''
+    GENERAL = 9
+    BOOKS = auto()
+    FILM = auto()
+    MUSIC = auto()
+    MNT = auto()
+    TV = auto()
+    VIDEO = auto()
+    BOARD = auto()
+    SCIENCE = auto()
+    PC = auto()
+    MATH = auto()
+    MYTHOLOGY = auto()
+    SPORTS = auto()
+    GEOGRAPHY = auto()
+    HISTORY = auto()
+    POLITICS = auto()
+    ART = auto()
+    CELEB = auto()
+    ANIMALS = auto()
+    CARS = auto()
+    COMICS = auto()
+    GADGETS = auto()
+    JP = auto()
+    CARTOONS = auto()
+
+
+@dataclass
 class QuizData:
 
-    def __init__(self) -> None:
-        self.response = requests.get('https://opentdb.com/api.php?amount=1')
+    category: str = field(default='')
+    link: str = f'https://opentdb.com/api.php?amount=1'
+
+    def __post_init__(self):
+        if self.category != '':
+            self.link += f'&category={Category[self.category].value}'
+        self.response = requests.get(self.link)
 
     def get_response(self) -> str:
         return self.response.json()['response_code']

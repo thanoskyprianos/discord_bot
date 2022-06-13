@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from random import shuffle
+from unicodedata import category
 
 from discord import Embed
 
@@ -14,11 +15,13 @@ def json_fix(string: str) -> str:
 @dataclass
 class Quiz:
 
-    _quiz: QuizData = field(init=False, default_factory=QuizData)
+    category: str = ''
     _correct: Embed = field(init=False, default_factory=Embed)
     _incorrect: Embed = field(init=False, default_factory=Embed)
 
     def __post_init__(self):
+
+        self._quiz = QuizData(category=self.category)
 
         if self._quiz.get_response() == 0:
             self._question = json_fix(self._quiz.get_question())
@@ -97,3 +100,7 @@ class Quiz:
         if self._difficulty == 'Medium':
             return 2
         return 3
+
+    def get_response(self):
+        '''Returns the response'''
+        return self._quiz.get_response()

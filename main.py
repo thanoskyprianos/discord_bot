@@ -1,8 +1,11 @@
-from discord import Embed
+from typing import Optional
+
+from discord import User
 from discord.ext import commands
 
+from help_scripts.quiz_help import QuizHelp
 from quiz.question_maker import Quiz
-from quiz.quiz_api import QuizData
+from quiz.quiz_api import Category
 from user_database.users import Database
 
 bot = commands.Bot(command_prefix='!')
@@ -10,7 +13,7 @@ bot = commands.Bot(command_prefix='!')
 
 @bot.event
 async def on_ready():
-    print('Logged in!')
+    print(f'Logged in as {bot.user}!')
 
 
 #not useful at the moment
@@ -45,47 +48,61 @@ async def clear(ctx, number=''):
 
 
 @bot.command()
-async def quiz(ctx):
+async def quiz(ctx, category=''):
+    if category.upper() in Category.__members__.keys() or not category:
+        await play_if_code0(ctx, category.upper())
+    elif category == 'help':
+        quiz_help = QuizHelp().get_embed()
+        await ctx.send(embed=quiz_help)
+    else:
+        await ctx.send('Please specify a valid category.')
 
-    quiz = QuizData()
-    if quiz.get_response() == 0:  #check if api works
 
-        question = Quiz()
-        msg = await ctx.send(embed=question.template_creation())
+async def play_if_code0(ctx, category):
+    question = Quiz(category)
+    if question.get_response() == 0:
+        await send_quiz(ctx, question)
+    else:
+        await ctx.send('Something went wrong. Try again later.')
 
-        for emoji in question.get_choices().keys():
-            await msg.add_reaction(emoji)
 
-        def check(reaction, user):
-            return user.id == ctx.author.id\
-                and reaction.message == msg\
-                and reaction.message.channel.id == ctx.channel.id\
-                and str(reaction.emoji) in question.get_choices().keys()
+async def send_quiz(ctx, question):
+    msg = await ctx.send(embed=question.template_creation())
 
-        reaction, _ = await bot.wait_for('reaction_add', check=check)
+    for emoji in question.get_choices().keys():
+        await msg.add_reaction(emoji)
 
-        db = Database()
+    def check(reaction, user):
+        return user.id == ctx.author.id\
+            and reaction.message == msg\
+            and reaction.message.channel.id == ctx.channel.id\
+            and str(reaction.emoji) in question.get_choices().keys()
 
-        if question.get_choices()[str(
-                reaction.emoji)] == question.get_correct_answer():
-            await msg.edit(embed=question.correct_embed())
-            db.write_user(ctx.author.id, question.difficulty_modifier())
-            return
-        await msg.edit(embed=question.incorrect_embed())
-        db.write_user(ctx.author.id)
+    reaction, _ = await bot.wait_for('reaction_add', check=check)
+
+    db = Database()
+
+    if question.get_choices()[str(
+            reaction.emoji)] == question.get_correct_answer():
+        await msg.edit(embed=question.correct_embed())
+        db.write_user(ctx.author.id, question.difficulty_modifier())
         return
-
-    await ctx.send('API not currently working.')
+    await msg.edit(embed=question.incorrect_embed())
+    db.write_user(ctx.author.id)
+    return
 
 
 @bot.command()
-async def points(ctx):
+async def points(ctx, user: Optional[User]):
+    if user:
+        uid = user
+    else:
+        uid = ctx.author
     db = Database()
-    if db.check_if_exist(ctx.author.id):
-        await ctx.send(
-            f'{ctx.author.name} has {db.get_points(ctx.author.id)} point(s).')
+    if db.check_if_exist(uid.id):
+        await ctx.send(f'{uid.name} has {db.get_points(uid.id)} point(s).')
         return
-    await ctx.send(f'{ctx.author.name} has not played a game yet.')
+    await ctx.send(f'{uid.name} has not played a game yet.')
 
 
 bot.run(
