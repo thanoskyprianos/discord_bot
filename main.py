@@ -72,7 +72,7 @@ async def send_quiz(ctx, question):
     for emoji in question.get_choices().keys():
         await msg.add_reaction(emoji)
 
-    def check(reaction, user):
+    def check(reaction, user) -> bool:
         return user.id == ctx.author.id\
             and reaction.message == msg\
             and reaction.message.channel.id == ctx.channel.id\

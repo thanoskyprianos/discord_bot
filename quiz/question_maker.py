@@ -21,7 +21,7 @@ class Quiz:
 
     def __post_init__(self):
 
-        self._quiz = QuizData(category=self.category)
+        self._quiz = QuizData(self.category)
 
         if self._quiz.get_response() == 0:
             self._question = json_fix(self._quiz.get_question())
@@ -56,7 +56,7 @@ class Quiz:
         else:
             self._choices = dict(zip(__number_emojis, self._correct_incorrect))
 
-    def template_creation(self):
+    def template_creation(self) -> Embed:
         '''Creates and returns the question template'''
 
         self.choice_creator()
@@ -72,13 +72,13 @@ class Quiz:
             value='\n'.join(f'{k} {v}' for k, v in self._choices.items()))
         return self._question_template
 
-    def correct_embed(self):
+    def correct_embed(self) -> Embed:
         '''Returns the correct answer embed'''
         self._correct.title = 'Correct!'
         self._correct.description = 'Good job!'
         return self._correct
 
-    def incorrect_embed(self):
+    def incorrect_embed(self) -> Embed:
         '''Returns the incorrect answer embed'''
         self._incorrect.title = 'Incorrect!'
         self._incorrect.description = 'Try again!'
@@ -86,21 +86,21 @@ class Quiz:
                                   value=self._correct_answer[0])
         return self._incorrect
 
-    def get_choices(self):
+    def get_choices(self) -> dict[str, str]:
         '''Returns the choices'''
         return self._choices
 
-    def get_correct_answer(self):
+    def get_correct_answer(self) -> str:
         '''Returns the correct answer'''
         return self._correct_answer[0]
 
-    def difficulty_modifier(self):
+    def difficulty_modifier(self) -> int:
         if self._difficulty == 'Easy':
             return 1
         if self._difficulty == 'Medium':
             return 2
         return 3
 
-    def get_response(self):
+    def get_response(self) -> int:
         '''Returns the response'''
         return self._quiz.get_response()

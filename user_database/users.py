@@ -1,5 +1,6 @@
 import sqlite3 as sql
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -11,7 +12,7 @@ class Database:
         return self.cur.execute("SELECT * FROM Users WHERE UserID = ?",
                                 (user, )).fetchone() is not None
 
-    def write_user(self, user, extra_points=0):
+    def write_user(self, user, extra_points: Optional[int] = 0):
         if self.check_if_exist(user):
             points = self.cur.execute(
                 "SELECT Points FROM Users WHERE UserID = ?",
@@ -25,6 +26,6 @@ class Database:
                 (user, extra_points))
             self.con.commit()
 
-    def get_points(self, user):
+    def get_points(self, user) -> int:
         return self.cur.execute("SELECT Points FROM Users WHERE UserID = ?",
                                 (user, )).fetchone()[0]

@@ -44,5 +44,5 @@ class QuizHelp:
         self._embed = Embed(title="Quiz Help", description=self._help)
         self._embed.add_field(name="Categories", value=self._categories)
 
-    def get_embed(self):
+    def get_embed(self) -> Embed:
         return self._embed

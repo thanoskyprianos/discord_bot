@@ -43,7 +43,7 @@ class QuizData:
             self.link += f'&category={Category[self.category].value}'
         self.response = requests.get(self.link)
 
-    def get_response(self) -> str:
+    def get_response(self) -> int:
         return self.response.json()['response_code']
 
     def get_question(self) -> str:
