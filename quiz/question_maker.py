@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from random import shuffle
-from unicodedata import category
 
 from discord import Embed
 
