@@ -1,7 +1,9 @@
+from os import getenv
 from typing import Optional
 
 from discord import User
 from discord.ext import commands
+from dotenv import load_dotenv
 
 from help_scripts.quiz_help import QuizHelp
 from quiz.question_maker import Quiz
@@ -107,5 +109,6 @@ async def stats(ctx, user: Optional[User]):
     await ctx.send(f'{uid.name} has not played a game yet.')
 
 
-bot.run(
-    'OTg1MjE4ODI1OTIwMzI3NzEw.GFyfhP.I19NcCSL1UH4rPPXmTiP4unzKfsM7NQPEmFHBI')
+load_dotenv('./token.env')
+token = getenv('TOKEN')
+bot.run(token)
