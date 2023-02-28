@@ -109,6 +109,6 @@ async def stats(ctx, user: Optional[User]):
     await ctx.send(f'{uid.name} has not played a game yet.')
 
 
-load_dotenv('./token.env')
+load_dotenv('./.env')
 token = getenv('TOKEN')
 bot.run(token)
