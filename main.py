@@ -2,6 +2,7 @@ from os import getenv
 from typing import Optional
 
 from discord import User
+from discord import Intents
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -10,7 +11,7 @@ from quiz.question_maker import Quiz
 from quiz.quiz_api import Category
 from user_database.users import Database
 
-bot = commands.Bot(command_prefix='!')
+bot = commands.Bot(command_prefix='!', intents=Intents.all())
 
 
 @bot.event
